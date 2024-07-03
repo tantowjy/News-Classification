@@ -69,7 +69,7 @@ def main(max_pages):
     filename = "dataset-turnbackhoax.json"
     with open(filename, "w", encoding='utf-8') as f:
         json.dump(articles, f, ensure_ascii=False, indent=4)
-    print("Data has been saved to {filename}")
+    print(f"Data has been saved to {filename}")
 
 if __name__ == "__main__":
     max_pages = 5  # Set the number of pages you want to crawl
