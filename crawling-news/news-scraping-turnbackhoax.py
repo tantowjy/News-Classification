@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import json
-import time
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"
@@ -67,11 +66,12 @@ def get_all_articles(base_url, max_pages):
 
 def main(max_pages):
     articles = get_all_articles(base_url, max_pages)
-    with open("crawling-news-dataset/hoax_articles301-600.json", "w", encoding='utf-8') as f:
+    filename = "dataset-turnbackhoax.json"
+    with open(filename, "w", encoding='utf-8') as f:
         json.dump(articles, f, ensure_ascii=False, indent=4)
-    print("Data has been saved to hoax_articles201-300.json")
+    print("Data has been saved to {filename}")
 
 if __name__ == "__main__":
-    max_pages = 300  # Set the number of pages you want to crawl
-    base_url = "https://turnbackhoax.id/page/301/"
+    max_pages = 5  # Set the number of pages you want to crawl
+    base_url = "https://turnbackhoax.id/page/1/"
     main(max_pages)
