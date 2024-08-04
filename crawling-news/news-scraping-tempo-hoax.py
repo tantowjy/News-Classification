@@ -1,10 +1,8 @@
 import csv
-import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
 # Function to write data to CSV file
-
 def write_to_csv(data, filename):
     with open(filename, mode='a', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
@@ -14,9 +12,9 @@ def write_to_csv(data, filename):
         for row in data:
             writer.writerow(row)
 
-# Tempo Fake News Scraping
-year = 2021
-url = 'https://cekfakta.tempo.co/2021/' # change year for crawling
+# CHANGE YEAR
+YEAR = 2024
+url = f'https://cekfakta.tempo.co/{YEAR}/'
 
 # Initialize list to store data
 data = []
@@ -28,8 +26,6 @@ for i in range(1, 13):
     url_page = url+'{}'.format(i)
   page = requests.get(url_page)
   soup = BeautifulSoup(page.text, 'html')
-
-  print(i)
 
   # Find all news articles
   news = soup.find_all('article', 'text-card')
@@ -65,19 +61,9 @@ for i in range(1, 13):
       data.append([title_news, news_link, date, paragraph, is_fake])
 
 # File name for the CSV
-filename_draft = f'dataset-tempo-hoax-draft-{year}.csv'
-filename = f'dataset-tempo-hoax-{year}.csv'
+filename = f'dataset_tempo_hoaks_{YEAR}.csv'
 
 # Write data to CSV file
-write_to_csv(data, filename_draft)
-
-# Read CSV file
-df = pd.read_csv(f'dataset-tempo-hoax-draft-{year}.csv')
-
-# remove duplicate data
-df_unique = df.drop_duplicates(subset='title', keep='first')
-
-# save new data
-df_unique.to_csv(filename, index=False)
+write_to_csv(data, filename)
 
 print(f"Data has been written to {filename}")

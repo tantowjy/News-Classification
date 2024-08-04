@@ -1,9 +1,7 @@
 import csv
-import pandas as pd
 import requests
 import re
 from bs4 import BeautifulSoup
-from datetime import datetime
 
 # Function to write data to CSV file
 def write_to_csv(data, filename):
@@ -15,59 +13,59 @@ def write_to_csv(data, filename):
         for row in data:
             writer.writerow(row)
 
-# CHANGE THIS URL AND END_PAGE
-url = 'https://news.detik.com/berita/indeks/'
-END_PAGE = 5
+# CHANGE YEAR
+YEAR = 2024
+MONTH = '08'
+url = f'https://www.tempo.co/indeks/{YEAR}-{MONTH}-'
 
 # Initialize list to store data
 data = []
 
-for i in range(1, END_PAGE):
-  url_page = url+'{}'.format(i)
+for i in range(1, 31):
+  print(i)
+  url_page = url+'{}/nasional'.format(i)
   page = requests.get(url_page)
   soup = BeautifulSoup(page.text, 'html')
 
   # Find all news articles
-  news = soup.find_all('article', 'list-content__item')
+  news = soup.find_all('div', 'card-box')
 
   for n in news:
-    title = n.find('h3', 'media__title').get_text()
-    link = n.find('a', 'media__link')['href']
-    timestamp = n.find('div', 'media__date').find('span')['d-time']
-    timestamp_int = int(timestamp)
-    date = datetime.fromtimestamp(timestamp_int).strftime('%d/%m/%Y')
+    link = n.find('a')['href']
 
     if(link != ''):
       # Get news contents
       get_content = requests.get(link)
       soup_content = BeautifulSoup(get_content.text, 'html')
-      content = soup_content.find('div', 'detail__body-text').find_all('p')
+      title = soup_content.find('h1', 'title').get_text()
+      date = soup_content.find('p', 'date').get_text()
+      content = soup_content.find('div', 'detail-konten').find_all('p')
       paragraph = ''
       for p in content:
         paragraph += p.get_text()
 
-      # News information
+      # News information source
       is_fake = 0
 
       # Append data to list
       data.append([title, link, date, paragraph, is_fake])
 
 # File name for the CSV
-filename = 'dataset_detik_raw.csv'
+filename = 'dataset_tempo_raw.csv'
 
 # Write data to CSV file
 write_to_csv(data, filename)
 
 print(f"Data has been written to {filename}")
 
-def extract_title(text):
+def extract_content(text):
     # Normalize text to lowercase
     text = text.lower()
 
-    # Define the start phrases
+    # Define the start and end phrases
     start_phrases = [
-        "\n"
-    ]
+        "jakarta -",
+        "jakarta-"]
 
     # Initialize the pattern with the start phrases
     start_pattern = "|".join(map(re.escape, start_phrases))
@@ -81,32 +79,29 @@ def extract_title(text):
         return match.group(2).strip()
     else:
         return text
-    
-# Open the CSV file in read mode
-with open('dataset_detik_raw.csv', 'r') as csvfile:
-    reader = csv.reader(csvfile)
 
-    # Skip the header row
-    next(reader)
+# Open the CSV file in read mode
+with open('dataset_tempo_raw.csv', 'r') as csvfile:
+    reader = csv.DictReader(csvfile)
 
     # Create a list to store the modified data
     modified_data = []
 
     # Iterate over each row in the CSV file
     for row in reader:
-        title = row[0]
-        link = row[1]
-        date = row[2]
-        content = row[3]
-        is_fake = row[4]
+        title = row['title']
+        link = row['link']
+        date = row['date']
+        content = row['content']
+        is_fake = row['is_fake']
 
-        extracted_title = extract_title(title)
+        extracted_content = extract_content(content)
 
         # Append data to list
-        modified_data.append([extracted_title, link, date, content, is_fake])
+        modified_data.append([title, link, date, extracted_content, is_fake])
 
     # File name for the CSV
-    filename = 'dataset_detik.csv'
+    filename = 'dataset_tempo.csv'
 
     # Write data to CSV file
     write_to_csv(modified_data, filename)

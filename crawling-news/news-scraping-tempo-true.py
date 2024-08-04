@@ -1,5 +1,4 @@
 import csv
-import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
@@ -13,9 +12,9 @@ def write_to_csv(data, filename):
         for row in data:
             writer.writerow(row)
 
-# Tempo True News Scraping
-year = 2024
-url = 'https://cekfakta.tempo.co/2024/' # change year for crawling
+# CHANGE YEAR
+YEAR = 2024
+url = 'https://cekfakta.tempo.co/{}/'.format(YEAR)
 
 # Initialize list to store data
 data = []
@@ -27,8 +26,6 @@ for i in range(1, 13):
     url_page = url+'{}'.format(i)
   page = requests.get(url_page)
   soup = BeautifulSoup(page.text, 'html')
-
-  print(i)
 
   # Find all news articles
   news = soup.find_all('article', 'text-card')
@@ -64,7 +61,7 @@ for i in range(1, 13):
       data.append([title_news, news_link, date, paragraph, is_fake])
 
 # File name for the CSV
-filename = f'dataset-tempo-true-{year}.csv'
+filename = f'dataset_tempo_true_{YEAR}.csv'
 
 # Write data to CSV file
 write_to_csv(data, filename)
